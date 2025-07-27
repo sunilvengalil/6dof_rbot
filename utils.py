@@ -1,25 +1,41 @@
 import RPi.GPIO as GPIO
 import time
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(13, GPIO.OUT)
 
-p = GPIO.PWM(13, 50)
+speedDelay = 30
+STEP = 0.01
+def move_to(servo, start_pos, name="servo"):
+    start_duty_cycle = start_pos / 18 + 2.5
+    print(f"Started joint {name} at angle {start_pos}") 
+    servo.ChangeDutyCycle(start_duty_cycle)
 
-speedDelay = 20
+def start(servo, start_pos, name="servo"):
+    start_duty_cycle = start_pos / 18 + 2.5
+    print(f"Started joint {name} at angle {start_pos}") 
+    servo.start(start_duty_cycle)
 
-def smooth_move(p, start, finish):
+def smooth_move(p, start, finish, name, delay=speedDelay):
     if start == finish:
         return
-    if start < finish:
-        step = 0.05
-    else:
-        step = -0.05
-    num_steps = (int) ((finish - start)/step)
-
+    start_duty_cycle = (start / 18) + 2.5
+    finish_duty_cycle = (finish / 18) + 2.5
+    print(start_duty_cycle, finish_duty_cycle)
+    step = STEP
+    if start_duty_cycle > finish_duty_cycle:
+        step = -step
+    num_steps = (int) ((finish_duty_cycle - start_duty_cycle)/step)
+    print(f"Moving joint {name} from {start} to {finish}")
+    position = start_duty_cycle
     for j in range(1, num_steps + 1):
-        position = start + j * step
-        print(position)
-        p.changeDutyCycle(position);
-        time.sleep(speedDelay/1000);
+        position = position + step
+        p.ChangeDutyCycle(position);
+        time.sleep(delay/1000);
+    if step > 0 and position < finish_duty_cycle:
+        position = finish_duty_cycle 
+        p.ChangeDutyCycle(position);
+        time.sleep(delay/1000);
+    elif step < 0 and position > finish_duty_cycle:
+        position = finish_duty_cycle 
+        p.ChangeDutyCycle(position);
+        time.sleep(delay/1000);
+    print(f"Joint {name} reached target position {finish}")
 
-smooth_move(5,10)
