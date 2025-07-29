@@ -4,7 +4,7 @@ from utils import smooth_move
 from utils import start
 
 right = 0
-left = 50
+left = 10
 
 base_pos = 90 
 shoulder_pos = 90 
@@ -15,7 +15,7 @@ grasp_pos = 90
 
 wrist_dest =160 
 arm_dest = 30
-shoulder_dest = 140 
+shoulder_dest = 100 
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(26, GPIO.OUT)
